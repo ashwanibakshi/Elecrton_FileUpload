@@ -1,5 +1,5 @@
 const {app,
-BrowserWindow,dialog} = require('electron');
+BrowserWindow,dialog, ipcRenderer} = require('electron');
 const { ipcMain }     = require('electron/main');
 const os              = require('os');
 const fs              = require('fs');
@@ -26,23 +26,24 @@ app.on('ready',()=>{
        webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
-        enableRemoteModule: true,
-      }
+        enableRemoteModule: true
+      },
+      // frame:false
    });
    mainWindow.loadFile("index.html");
    
    //
-  //  mainWindow.webContents.on('did-finish-load',()=>{
-  //    fileModel.find({},{},{sort:{"filee":-1}},(err,fdata)=>{
-  //        if(err){
-  //          console.log(err);
-  //        }
-  //        else{
-  //          fdata = JSON.stringify(fdata);
-  //         mainWindow.webContents.send("getData",fdata);
-  //         }
-  //     });
-  //   });
+   mainWindow.webContents.on('did-finish-load',()=>{
+     fileModel.find({},{},{sort:{"_id":-1}},(err,fdata)=>{
+         if(err){
+           console.log(err);
+         }
+         else{
+           fdata = JSON.stringify(fdata);
+          mainWindow.webContents.send("getData",fdata);
+          }
+      });
+    });
  });
 
 app.on('window-all-closed', function () {
@@ -51,48 +52,14 @@ app.on('window-all-closed', function () {
 
 ipcMain.on('getImage',(event,arg)=>{
 
-    let imgPath;
-
       dialog.showOpenDialog({properties:['openFile']})
        .then((data)=>{
          if(data.canceled){
            console.log("dialogbox Closed")
          }
          else{
-       
           const filePath = data.filePaths[0];
-
-          event.sender.send("showImage",filePath);
-
-
-          // const fileName = path.basename(data.filePaths[0]);
-          // const pathh    = path.resolve(__dirname,'uploads');
-
-          // imgPath = path.join(pathh,fileName)
-
-
-          // fs.copyFile(filePath, imgPath, (err) => {
-          //   if (err){
-          //     throw err;
-          //   }
-          //   else{
-          //       //save img in db
-          //     let fileData = new fileModel({
-          //         filee : imgPath
-          //     });
-          //     fileData.save((err,dat)=>{
-          //          if(err){
-          //            console.log(err);
-          //          }
-          //          else{
-                    
-          //            dat = JSON.stringify(dat);
-          //            console.log('data',dat);
-          //            event.sender.send('showImage',dat);
-          //          }
-          //       });   
-          //     }
-          //   });
+          event.sender.send("showImage",filePath);             
            }
         })
        .catch((err)=>{
@@ -100,3 +67,56 @@ ipcMain.on('getImage',(event,arg)=>{
        }) 
     });
 
+ ipcMain.on("saveData",(event,arg)=>{
+  let imgPath;
+  // console.log('s23',arg);   
+       const pathh    = path.resolve(__dirname,'uploads');
+       const fileName = path.basename(arg.imagePath);
+              imgPath = path.join(pathh,fileName);
+            // console.log('df34',fileName,imgPath)         
+
+           //copy the image from actual location to upload folder
+           fs.copyFile(arg.imagePath, imgPath, (err) => {
+            if (err){
+              throw err;
+            }
+            else{
+                //save img in db
+              let fileData = new fileModel({
+                  name:arg.namee,
+                  filee : imgPath
+              });
+              fileData.save((err,dat)=>{
+                   if(err){
+                     console.log(err);
+                   }
+                   else{
+                     getAllData((err,gdata)=>{
+                       if(err){
+                         console.log(err);
+                       }
+                       else{
+                         gdata = JSON.stringify(gdata);
+                         event.sender.send("getData",gdata);
+                       }
+                     });
+                  }
+                });   
+              }
+            });
+ });
+
+
+ function getAllData(cb){
+     fileModel.find({},{},{sort:{"_id":-1}},(err,fdata)=>{
+           if(err){
+              cb(err,null);
+           }
+           else if(fdata){
+                cb(null,fdata);
+           }
+           else{
+              cb('no data found',null);
+           }
+     });
+ }

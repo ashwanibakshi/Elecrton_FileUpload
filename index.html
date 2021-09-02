@@ -4,13 +4,65 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+
     <script src="render.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
 </head>
 <body>
     <br><br>
-     <div id="image">
-
-     </div><br>
-    <input type="button" name="" id="file1" onclick="image()" value="upload image"><br><br>
+    <div class="container">
+        <div class="d-flex justify-content-center">
+            <table class="table table-responsive table-bordered">
+                <tbody>
+                    <tr>
+                        <td>
+                            Person Name
+                        </td>
+                        <td>
+                         <input type="text" name="" id="name" class="form-control" placeholder="enter name"> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Upload Image
+                        </td>
+                        <td>
+                            <div id="image">
+                
+                            </div>
+                            <input type="button" name="" id="file1" onclick="image()" value="upload image"  class="btn btn-primary" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center">
+                <input type="button" class="btn btn-primary" onclick="saveData()" value="save">
+            </div>
+        </div><br><br>
+        <hr>
+        <div class="d-flex justify-content-center">
+          <table class="table table-responsive table-bordered">
+             <thead>
+                 <tr>
+                     <td>
+                         Name
+                     </td>
+                     <td>
+                         Image
+                     </tc>
+                 </tr>
+             </thead>
+             <tbody id="dtable">
+              
+             </tbody>
+          </table>
+        </div>
+    </div>
 </body>
 </html>
